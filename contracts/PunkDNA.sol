@@ -206,7 +206,8 @@ contract PunkDNA {
     ];
 
     uint8 constant ADN_SECTION_SIZE = 2;
-
+    
+    //funcion determinista seudo aleatorio, no debe ser usado en produccion
     function deterministicPseudoRadomDNA(uint256 _tokenId, address _minter)
     public
     pure
