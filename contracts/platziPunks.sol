@@ -8,14 +8,68 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "./Base64.sol";
 import "./PunkDNA.sol";
 
-contract PlatziPuns is ERC721, ERC721Enumerable {
+contract PlatziPuns is ERC721, ERC721Enumerable, PunkDNA {
     using Counters for Counters.Counter;
+    using Strings for uint256;
 
     Counters.Counter private _idCounter;
-    uint256 public maxSupplt;
+    uint256 public maxSupply;
+    mapping(uint256 => uint256) public tokenDNA;
 
     constructor(uint256 _maxSupply) ERC721("PlatziPuns", "PLPKS") {
-        maxSupplt = _maxSupply;
+        maxSupply = _maxSupply;
+    }
+
+    function mint() public {
+        uint256 current = _idCounter.current();
+        require(current < maxSupply, "not platziPunks left :(");
+
+        tokenDNA[current] = deterministicPseudoRadomDNA(current, msg.sender);
+        _safeMint(msg.sender, current);
+        _idCounter.increment();
+    }
+
+    function _baseURI() internal pure override returns (string memory) {
+        return "https://avataaars.io/";
+    }
+
+    function _paramsURI(uint256 _dna) internal view returns (string memory) {
+        string memory params;
+        params = string(
+            abi.encodePacked(
+                "accessoriesType=",
+                getAccesoriesType(_dna),
+                "&clotheColor=",
+                getClotheColor(_dna),
+                "&clotheType=",
+                getClotheType(_dna),
+                "&eyeType=",
+                getEyeType(_dna),
+                "&eyebrowType=",
+                getEyeBrowType(_dna),
+                "&facialHairColor=",
+                getFacialHairColor(_dna),
+                "&facialHairType=",
+                getFacialHairType(_dna),
+                "&hairColor=",
+                getHairColor(_dna),
+                "&hatColor=",
+                getHatColor(_dna),
+                "&graphicType=",
+                getGraphicType(_dna),
+                "&mouthType=",
+                getMouthType(_dna),
+                "&skinColor=",
+                getSkinColor(_dna)
+            )
+        );
+        return string(abi.encodePacked(params, "&topType=", getTopType(_dna)));
+    }
+
+    function imageByDNA(uint256 _dna) public view returns (string memory) {
+        string memory baseURI = _baseURI();
+        string memory paramsURI = _paramsURI(_dna);
+        return string(abi.encodePacked(baseURI, "?", paramsURI));
     }
 
     // The following functions are overrides required by Solidity.
@@ -38,15 +92,6 @@ contract PlatziPuns is ERC721, ERC721Enumerable {
         return super.supportsInterface(interfaceId);
     }
 
-    function mint() public {
-        uint256 current = _idCounter.current();
-        require(current < maxSupplt, "not platziPunks left :( ");
-
-        _safeMint(msg.sender, current);
-        _idCounter.increment();
-    }
-
-
     //JSON en formato base 64
     function tokenURI(uint256 tokenID)
         public
@@ -56,15 +101,20 @@ contract PlatziPuns is ERC721, ERC721Enumerable {
     {
         require(_exists(tokenID), "ERC721 MetadaData : URI query not exists");
 
+        uint256 dna = tokenDNA[tokenID];
+        string memory image = imageByDNA(dna);
+
         string memory jsonURI = Base64.encode(
             abi.encodePacked(
                 ' {"name" : "PLatziPunks #" ',
-                tokenID,
+                tokenID.toString(),
                 '", "description": "NTF", "image": "',
-                " //TODO: calculate image URL",
+                image,
                 '"}'
-                ));
+            )
+        );
 
-        return string(abi.encodePacked("data:application/json;base64", jsonURI));
+        return
+            string(abi.encodePacked("data:application/json;base64", jsonURI));
     }
 }
