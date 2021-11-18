@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "./Base64.sol";
 import "./PunkDNA.sol";
 
-contract PlatziPuns is ERC721, ERC721Enumerable, PunkDNA {
+contract PlatziPunks is ERC721, ERC721Enumerable, PunkDNA {
     using Counters for Counters.Counter;
     using Strings for uint256;
 
@@ -106,7 +106,7 @@ contract PlatziPuns is ERC721, ERC721Enumerable, PunkDNA {
 
         string memory jsonURI = Base64.encode(
             abi.encodePacked(
-                ' {"name" : "PLatziPunks #" ',
+                ' {"name" : "PLatziPunks # ',
                 tokenID.toString(),
                 '", "description": "NTF", "image": "',
                 image,
@@ -115,6 +115,6 @@ contract PlatziPuns is ERC721, ERC721Enumerable, PunkDNA {
         );
 
         return
-            string(abi.encodePacked("data:application/json;base64", jsonURI));
+            string(abi.encodePacked("data:application/json;base64,", jsonURI));
     }
 }
