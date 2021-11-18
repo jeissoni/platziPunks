@@ -13,3 +13,7 @@ npx hardhat node
 node scripts/sample-script.js
 npx hardhat help
 ```
+
+
+Como crear un archivo flatt para validar el contrato: npx hardhat flatten > flatten.sol
+como desplegar el contrato: npx hardhat run --network rinkeby scripts/deploy.js
