@@ -6,7 +6,7 @@ describe ('Platzi Punks Contract', ()=> {
 
     const setup = async({maxSupply = 10000}) => {
         const [owner] = await ethers.getSigners();
-        const platziPunk = await ethers.getContractFactory("PlatziPuns");
+        const platziPunk = await ethers.getContractFactory("PlatziPunks");
         const deployed = await platziPunk.deploy(maxSupply);
 
         return{
@@ -67,19 +67,16 @@ describe ('Platzi Punks Contract', ()=> {
 
             const stringTokenURI = await tokenURI.toString();
 
-            const [,base64JSON] = stringTokenURI.split(
+            const [prefix, base64JSON] = stringTokenURI.split(
                 "data:application/json;base64,"
             );
 
-            const stringMetadata = await Buffer.from(base64JSON, "base64").toString("ascii");
-            //const stringifiedMetadata = await Buffer.from(base64JSON,"base64").toString("ascii");
-            console.log("1")
+            const stringMetadata = await Buffer.from(
+                base64JSON,
+                "base64"
+                ).toString("ascii");            
            
             const metadata = JSON.parse(stringMetadata);
-
-            
-
-            console.log(metadata)
 
             expect(metadata).to.have.all.keys("name", "description", "image");
 
